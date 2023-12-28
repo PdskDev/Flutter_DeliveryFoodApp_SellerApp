@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sellers_app/widgets/custom_text_field.dart';
+import 'package:sellers_app/widgets/error_dialog.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -49,6 +50,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
     Placemark pMark = placeMarks![0];
     String completeAddress = '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
     locationController.text = completeAddress;
+  }
+
+  displayErrorMessage(message){
+    return showDialog(
+        context: context,
+        builder: (c) {
+          return ErrorDialog(message: message,);
+        }
+    );
+  }
+
+  Future<void> formValidation() async {
+    if(imageXFile == null) {
+      displayErrorMessage("Please select an image");
+    }
+    else {
+      if(passwordController.text == confirmPasswordController.text){
+        if(passwordController.text.isNotEmpty && confirmPasswordController.text.isNotEmpty
+        && nameController.text.isNotEmpty && emailController.text.isNotEmpty
+            && locationController.text.isNotEmpty && phoneController.text.isNotEmpty){
+          //start uploading image to database
+        }
+        else {
+          displayErrorMessage("Please fill required field for registration");
+        }
+      }
+      else {
+        displayErrorMessage("Password do not match");
+      }
+    }
   }
 
   @override
@@ -182,7 +213,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 borderRadius: BorderRadius.circular(30),
               ),
             ),
-            onPressed: ()=> print("clicked"),
+            onPressed: () {
+              formValidation();
+            },
           ),
           const SizedBox(height:20,),
         ],
