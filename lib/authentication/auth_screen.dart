@@ -16,8 +16,6 @@ class _AuthScreenState extends State<AuthScreen> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-        centerTitle: true,
-        leading: const BackButton(color: Colors.white),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -32,14 +30,16 @@ class _AuthScreenState extends State<AuthScreen> {
             )
           ),
         ),
-        title: const Text(
-            "Food Online",
+          automaticallyImplyLeading: false,
+          title: const Text(
+            "Online Food Delivery",
             style: TextStyle(
-                fontSize: 45,
+                fontSize: 38,
                 color: Colors.white,
               fontFamily: "Lobster"
             )
         ),
+          centerTitle: true,
         bottom: const TabBar(
           tabs: [
             Tab(
