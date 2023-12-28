@@ -118,11 +118,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 )
               ],
-
             ),
           ),
           const SizedBox(height:10,),
-          ElevatedButton(
+          /*ElevatedButton(
             style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 10),
@@ -135,6 +134,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,),
             ),
             onPressed: () => print("Clicked"),
+          ),*/
+          ElevatedButton.icon(
+            icon: const Icon(
+              Icons.app_registration,
+              color: Colors.white,
+            ),
+            label: const Text(
+              "Sign Up",
+              style: TextStyle(
+                  color: Colors.white
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            onPressed: ()=> print("clicked"),
           ),
           const SizedBox(height:20,),
         ],
