@@ -1,11 +1,17 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sellers_app/widgets/custom_text_field.dart';
 import 'package:sellers_app/widgets/error_dialog.dart';
+import 'package:sellers_app/widgets/loading_dialog.dart';
+import 'package:firebase_storage/firebase_storage.dart' as fStorage;
+
+import '../mainScreens/home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -27,9 +33,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   XFile? imageXFile;
   final ImagePicker _picker = ImagePicker();
+  String sellerImageUrl = "";
 
   Position? position;
   List<Placemark>? placeMarks;
+  String? completeAddress = "";
 
   Future<void> _getImage() async {
     imageXFile =  await _picker.pickImage(source: ImageSource.gallery);
@@ -48,8 +56,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     placeMarks = await placemarkFromCoordinates(position!.latitude, position!.longitude);
 
     Placemark pMark = placeMarks![0];
-    String completeAddress = '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
-    locationController.text = completeAddress;
+    completeAddress = '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
+    locationController.text = completeAddress!;
   }
 
   displayErrorMessage(message){
@@ -71,6 +79,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
         && nameController.text.isNotEmpty && emailController.text.isNotEmpty
             && locationController.text.isNotEmpty && phoneController.text.isNotEmpty){
           //start uploading image to database
+          showDialog(context: context, builder: (c){
+           return const LoadingDialog(message: "Registering Account");
+          });
+
+          String fileName = DateTime.now().microsecondsSinceEpoch.toString();
+          fStorage.Reference reference = fStorage.FirebaseStorage.instance.ref().child("sellers").child(fileName);
+          fStorage.UploadTask uploadTask = reference.putFile(
+              File(imageXFile!.path),
+              fStorage.SettableMetadata(contentType: 'image/jpg'));
+          fStorage.TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() {});
+          await taskSnapshot.ref.getDownloadURL().then((url){
+            sellerImageUrl = url;
+
+            //Save data to firestore
+            authenticateSellerAndSignUp();
+          });
         }
         else {
           displayErrorMessage("Please fill required field for registration");
@@ -80,6 +104,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
         displayErrorMessage("Password do not match");
       }
     }
+  }
+
+  void authenticateSellerAndSignUp() async {
+    User? currentUser;
+    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    await firebaseAuth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim())
+    .then((auth) {
+      currentUser = auth.user;
+    });
+
+    if(currentUser != null){
+      saveDataToFirestore(currentUser!).then((value) {
+        Navigator.pop(context);
+        //Send user to home page
+        Route newRoute = MaterialPageRoute(builder: (c) => const HomeScreen());
+        Navigator.pushReplacement(context, newRoute);
+      });
+    }
+  }
+
+  Future saveDataToFirestore(User currentUser) async {
+    FirebaseFirestore.instance.collection("sellers").doc(currentUser.uid).set({
+      "sellerUID": currentUser.uid,
+      "sellerEmail": currentUser.email,
+      "sellerName": nameController.text.trim(),
+      "sellerAvatarUrl": sellerImageUrl,
+      "sellerPhone": phoneController.text.trim(),
+      "sellerAddress": completeAddress,
+      "status": "approved",
+      "earnings": 0.0,
+      "latitude": position!.latitude,
+      "longitude": position!.longitude
+    });
+
+    //save data locally
   }
 
   @override
