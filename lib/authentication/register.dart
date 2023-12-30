@@ -10,6 +10,7 @@ import 'package:sellers_app/widgets/custom_text_field.dart';
 import 'package:sellers_app/widgets/error_dialog.dart';
 import 'package:sellers_app/widgets/loading_dialog.dart';
 import 'package:firebase_storage/firebase_storage.dart' as fStorage;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../mainScreens/home_screen.dart';
 
@@ -114,6 +115,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: passwordController.text.trim())
     .then((auth) {
       currentUser = auth.user;
+    }).catchError((error) {
+      Navigator.pop(context);
+      displayErrorMessage(error.message.toString());
     });
 
     if(currentUser != null){
@@ -141,6 +145,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     //save data locally
+    SharedPreferences? sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setString("uid", currentUser.uid);
+    await sharedPreferences.setString("email", currentUser.email.toString());
+    await sharedPreferences.setString("name", nameController.text.trim());
+    await sharedPreferences.setString("photoURL", sellerImageUrl);
   }
 
   @override
