@@ -89,7 +89,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           fStorage.Reference reference = fStorage.FirebaseStorage.instance.ref().child("sellers").child(fileName);
           fStorage.UploadTask uploadTask = reference.putFile(
               File(imageXFile!.path),
-              fStorage.SettableMetadata(contentType: 'image/jpg'));
+              fStorage.SettableMetadata(contentType: 'image/jpg')
+          );
+
           fStorage.TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() {});
           await taskSnapshot.ref.getDownloadURL().then((url){
             sellerImageUrl = url;
