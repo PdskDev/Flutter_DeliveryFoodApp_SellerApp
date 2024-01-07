@@ -7,6 +7,7 @@ import '../mainScreens/home_screen.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/error_dialog.dart';
 import '../widgets/loading_dialog.dart';
+import 'auth_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -58,10 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     if(currentUser !=  null){
-      readDataAndSetDataLocally(currentUser!).then((value) {
-        Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(builder: (c) => const HomeScreen()));
-      });
+      readDataAndSetDataLocally(currentUser!);
     }
   }
 
@@ -69,10 +67,22 @@ class _LoginScreenState extends State<LoginScreen> {
     await FirebaseFirestore.instance.collection("sellers")
         .doc(currentUser.uid).get()
         .then((snapshot) async{
-      await sharedPreferences!.setString("uid", currentUser.uid);
-      await sharedPreferences!.setString("email", snapshot.data()!["sellerEmail"]);
-      await sharedPreferences!.setString("name", snapshot.data()!["sellerName"]);
-      await sharedPreferences!.setString("photoURL", snapshot.data()!["sellerAvatarUrl"]);
+          if(snapshot.exists){
+            await sharedPreferences!.setString("sellerUID", currentUser.uid);
+            await sharedPreferences!.setString("sellerEmail", snapshot.data()!["sellerEmail"]);
+            await sharedPreferences!.setString("sellerName", snapshot.data()!["sellerName"]);
+            await sharedPreferences!.setString("sellerAvatarUrl", snapshot.data()!["sellerAvatarUrl"]);
+
+            if(!mounted) return;
+            Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (c) => const HomeScreen()));
+          }
+          else {
+            firebaseAuth.signOut();
+            Navigator.push(context, MaterialPageRoute(builder: (c) => const AuthScreen()));
+            displayErrorMessage("Seller account not exist !");
+          }
+
     });
   }
 

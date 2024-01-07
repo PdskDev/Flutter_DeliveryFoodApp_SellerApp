@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sellers_app/authentication/auth_screen.dart';
 import 'package:sellers_app/global/global.dart';
 
+import '../widgets/user_drawer.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -29,28 +31,17 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         title: Text(
-            sharedPreferences!.getString("name")!,
+            sharedPreferences!.getString("sellerName")!,
             style: const TextStyle(
             fontSize: 38,
             color: Colors.white,
             fontFamily: "Lobster"
         )),
         centerTitle: true,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
       ),
-      body: Center(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-           backgroundColor: Colors.cyan
-          ),
-          onPressed: () {
-            firebaseAuth.signOut().then((value) {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => const AuthScreen()));
-            });
-          },
-          child: const Text("Logout"),
-        ),
-      ),
+      drawer: const UserDrawer(),
+      body: Container(),
     );
   }
 }
