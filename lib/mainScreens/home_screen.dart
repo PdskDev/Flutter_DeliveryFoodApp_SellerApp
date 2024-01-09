@@ -1,8 +1,15 @@
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:sellers_app/authentication/auth_screen.dart';
 import 'package:sellers_app/global/global.dart';
+import 'package:sellers_app/widgets/text_widget_header.dart';
 
+import '../models/menus.dart';
 import '../uploadScreens/menus_upload.dart';
+import '../widgets/info_design.dart';
+import '../widgets/progress_bar.dart';
 import '../widgets/user_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -50,7 +57,38 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       drawer: const UserDrawer(),
-      body: Container(),
+      body: CustomScrollView(
+        slivers: [
+          SliverPersistentHeader(
+              pinned: true,
+              delegate: TextWidgetHeader(textTitle: "My Menus")),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection("sellers").doc(sharedPreferences?.getString("sellerUID"))
+                .collection("menus").snapshots(),
+            builder: (context, snapshot) {
+              return !snapshot.hasData ?
+              SliverToBoxAdapter(child: Center(child: circularProgress()),)
+                  : SliverStaggeredGrid.countBuilder(
+                crossAxisCount: 1,
+                staggeredTileBuilder: (c) => const StaggeredTile.fit(1),
+                itemBuilder: (context, index) {
+                  Menus menusModel = Menus.fromJson(
+                      snapshot.data!.docs[index].data()! as Map<String, dynamic>
+                  );
+                  //Design info display
+                  return InfoDesignWidget(
+                    model: menusModel,
+                    context: context,
+                  );
+                },
+                itemCount: snapshot.data!.docs.length,
+              );
+            },
+          ),
+
+        ],
+      ),
     );
   }
 }

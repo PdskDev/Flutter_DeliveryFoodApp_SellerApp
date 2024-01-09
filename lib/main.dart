@@ -13,11 +13,11 @@ Future<void> main() async {
 
   Platform.isAndroid ?
   await Firebase.initializeApp(options:
-  const FirebaseOptions(apiKey: "",
-      appId: "",
-      messagingSenderId: "",
-      projectId: "",
-      storageBucket: ""),)
+  const FirebaseOptions(apiKey: "AIzaSyCKHdN_pPizCbRLkypOzosGg6c_xdwZV7Y",
+      appId: "1:514243578539:android:5ac92e3fede3407a0ec5ee",
+      messagingSenderId: "514243578539",
+      projectId: "onlinefooddelivery-ac42b",
+      storageBucket: "gs://onlinefooddelivery-ac42b.appspot.com"),)
       : await Firebase.initializeApp();
 
   runApp(const MyApp());
