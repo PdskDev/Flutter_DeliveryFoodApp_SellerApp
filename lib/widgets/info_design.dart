@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:sellers_app/mainScreens/items_screen.dart';
 import 'package:sellers_app/models/menus.dart';
+import 'package:sellers_app/uploadScreens/items_upload_screen.dart';
+import 'package:sellers_app/uploadScreens/menus_upload.dart';
 
 
 
@@ -18,6 +21,9 @@ class _InfoDesignWidgetState extends State<InfoDesignWidget> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (c) => ItemsScreen(model: widget.model)));
+      },
       splashColor: Colors.amber,
       child: Padding(
         padding: const EdgeInsets.all(3.0),

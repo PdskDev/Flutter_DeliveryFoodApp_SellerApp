@@ -32,10 +32,10 @@ class TextWidgetHeader extends SliverPersistentHeaderDelegate {
             textAlign: TextAlign.center,
             style: const TextStyle(
                 fontFamily: "Lobster",
-                fontSize: 30,
+                fontSize: 25,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 3,
-                color: Colors.cyan
+                color: Colors.white
             ),
           ),
         ),
